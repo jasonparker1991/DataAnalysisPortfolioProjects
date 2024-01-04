@@ -1,0 +1,385 @@
+---
+title: "Cyclistic Bike-Share Data Analysis"
+author: "Jason Parker"
+date: "2023-12-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This was my first data analysis project, completed as one of the capstone projects for the Google Data Analytics Professional Certificate. The background for the project is as follows: Cyclistic is a fictional bike-share company in Chicago, and the director of marketing has concluded that Cyclistic needs to maximize its annual memberships to ensure the company's future profitability, because annual members are much more profitable than casual riders. The marketing team wants to convert casual riders into annual members, and so the task of this data analysis is to discover important differences between casual riders and annual members (based on historical Cyclistic data), and to provide some recommendations for targeting marketing efforts towards casual riders to encourage them to purchase annual memberships.
+
+The public data for this project is accessible [here](https://divvy-tripdata.s3.amazonaws.com/index.html), and was made available by Motivate International Inc. under this [license](https://divvybikes.com/data-license-agreement). 
+
+## Data cleaning and transformation
+
+In this section, I will describe the steps that I took to clean and transform the data in R. I started by loading three of the data tidying packages that I required:
+
+```{r loading libraries, message=FALSE}
+library(tidyverse)
+library(lubridate)
+library(readr)
+```
+
+I then imported the data using the `read_csv` function. For my analysis, I decided to use four quarters of data from a single year, 2019.
+
+```{r importing data, message=FALSE}
+q1_2019 <- read_csv("raw_data/Divvy_Trips_2019_Q1.csv")
+q2_2019 <- read_csv("raw_data/Divvy_Trips_2019_Q2.csv")
+q3_2019 <- read_csv("raw_data/Divvy_Trips_2019_Q3.csv")
+q4_2019 <- read_csv("raw_data/Divvy_Trips_2019_Q4.csv")
+```
+
+I wanted to combine these four data frames into a single data frame using the `bind_rows` function, but first I needed to make sure that they all had the same number of columns with the same column names. 
+
+```{r colnames}
+colnames(q1_2019)
+colnames(q2_2019)
+colnames(q3_2019)
+colnames(q4_2019)
+```
+
+`q1_2019`, `q3_2019`, and `q4_2019` all have the same column names, but the column names for `q2_2019` are different. So I had to rename the column names for `q2_2019` so that they are identical to those for the other three data frames.
+
+```{r rename q2_2019 columns}
+q2_2019 <- rename(q2_2019,
+  trip_id = "01 - Rental Details Rental ID",
+  start_time = "01 - Rental Details Local Start Time",
+  end_time = "01 - Rental Details Local End Time",
+  bikeid = "01 - Rental Details Bike ID",
+  tripduration = "01 - Rental Details Duration In Seconds Uncapped",
+  from_station_id = "03 - Rental Start Station ID",
+  from_station_name = "03 - Rental Start Station Name",
+  to_station_id = "02 - Rental End Station ID",
+  to_station_name = "02 - Rental End Station Name",
+  usertype = "User Type",
+  gender = "Member Gender",
+  birthyear = "05 - Member Details Member Birthday Year"
+)
+```
+
+I could then combine the data frames for the four quarters of 2019 into a single data frame for the year 2019.
+
+```{r all_trips}
+all_trips <- bind_rows(q1_2019, q2_2019, q3_2019, q4_2019)
+```
+
+Next, I inspected the structure of the new data frame `all_trips`.
+
+```{r glimpse all_trips}
+glimpse(all_trips)
+```
+
+I then started to clean the data. First, I checked whether there were any duplicate values in the `trip_id` column, because all of the values in this column should be distinct:
+
+```{r check duplicates}
+sum(duplicated(all_trips$trip_id)) # count the number of duplicate values in the trip_id column
+```
+
+There are no duplicate values in the `trip_id` column, so the `all_trips` data frame does not have any duplicate rows. Next, I looked at the distinct values in the `gender` and `usertype` columns, to make sure that neither column had values that were formatted or inserted incorrectly:
+
+```{r unique usertype}
+unique(all_trips$gender)
+unique(all_trips$usertype)
+```
+
+The distinct values in the `gender` column are "Male", "Female", and "NA"; the first two make sense, while any rows with an "NA" value in the `gender` column will be removed below. The only two user types are "Subscriber" and "Customer", which I needed to rename to (respectively) "Member" and "Casual".
+
+```{r rename usertype}
+all_trips <- all_trips %>% mutate(usertype = recode(usertype, "Subscriber" = "Member", "Customer" = "Casual"))
+```
+
+I then removed any rows that contained null values.
+
+```{r remove nulls}
+all_trips <- all_trips %>% drop_na()
+```
+
+I then examined the birth years, to ensure that they made sense.
+
+```{r unique birthyears}
+unique(all_trips$birthyear)
+```
+
+There are 89 different birth years in the data, but some of them do not make sense for the year 2019: 1900, 1909, 1759, 1790, 1901, 1905, 1904, 1899, 1889. I first found out how many rides had a birth year before 1910 (making the rider at least 110 years old, which is very unlikely):
+
+```{r number of bad birthyears}
+sum(all_trips$birthyear < 1910)
+```
+
+There are 678 rides with a birth year before 1910, so I decided to remove these rows, because the birth year was likely input incorrectly. 
+
+```{r remove bad birthyears}
+all_trips <- all_trips %>% filter(birthyear >= 1910)
+```
+
+I then wanted to verify that the `tripduration` column actually computed the difference (in seconds) between the start and end time for each ride:
+
+```{r check tripduration}
+sum(all_trips$tripduration == difftime(all_trips$end_time,all_trips$start_time, units="secs"))
+```
+
+There are (only) 2,307,800 rows where the `tripduration` column is equal to the time difference in seconds between the start and end times, which suggests that almost one million rows do not have the correct trip duration value. So I decided to drop the `tripduration` column and then create a new, correct column for trip duration.
+
+```{r create new tripduration}
+all_trips <- all_trips %>% select(-tripduration)
+
+all_trips <- all_trips %>% 
+  mutate(
+  trip_duration = difftime(all_trips$end_time,all_trips$start_time, units="secs"), .after=end_time
+  )
+```
+
+I then converted the trip duration to numeric, so that I could run calculations on that data.
+
+```{r convert trip_duration to numeric}
+is.numeric(all_trips$trip_duration)
+all_trips$trip_duration <- as.numeric(as.character(all_trips$trip_duration))
+
+is.numeric(all_trips$trip_duration)
+```
+
+I then summarized the data in the new `trip_duration` column.
+
+```{r summary trip_duration}
+summary(all_trips$trip_duration)
+```
+
+The minimum trip duration is negative, and the maximum is over 9 million seconds (104 days). I then removed all of the rides with negative trip durations:
+
+```{r remove negative trip durations}
+all_trips <- all_trips %>% filter(trip_duration > 0)
+```
+
+Currently I could only aggregate the ride data based on the ride level, which is too granular. So I decided to add some additional columns for the date, month, and day of each ride.
+
+```{r add date, month, day}
+all_trips <- all_trips %>% 
+  mutate(
+    date = as.Date(all_trips$start_time),
+    month = format(as.Date(date), "%m"),
+    day = format(as.Date(date), "%d"),
+    day_of_week = format(as.Date(date), "%A")) 
+```
+
+I then added a column that calculates the (approximate) age in 2019 for each rider:
+
+```{r age column}
+all_trips <- all_trips %>% 
+  mutate(age = 2019 - birthyear) 
+```
+
+Next, I added a column that records the approximate season (fall, winter, spring, summer) in which each ride occurred.
+
+```{r season column}
+all_trips <- all_trips %>% 
+  mutate(
+    season = case_when(
+      month %in% c("12", "01", "02") ~ "winter",
+      month %in% c("03", "04", "05") ~ "spring",
+      month %in% c("06", "07", "08") ~ "summer",
+      month %in% c("09", "10", "11") ~ "fall"
+    )
+  )
+```
+
+I then added a column to check if each ride was a round trip, i.e. whether the rider returned the bike back to the starting location (1 if yes, 0 if no).
+
+```{r round_trip column}
+all_trips <- all_trips %>% 
+  mutate(round_trip = if_else(from_station_id == to_station_id, 1, 0)) 
+```
+
+I then added a column for the (starting) time of each ride, so that I could then add a column for the approximate time of day of each ride (early morning, morning, afternoon, evening).
+
+```{r time columns}
+all_trips <- all_trips %>% 
+  mutate(time = format(start_time, format="%H:%M:%S"))
+
+all_trips <- all_trips %>% 
+  mutate(
+    time_of_day = case_when(
+      "00:00:00" <= all_trips$time & all_trips$time <= "06:00:00"  ~ "early morning",
+      "06:00:00" < all_trips$time & all_trips$time <= "12:00:00"  ~ "morning",
+      "12:00:00" < all_trips$time & all_trips$time <= "18:00:00"  ~ "afternoon",
+      "18:00:00" < all_trips$time & all_trips$time <= "23:59:59"  ~ "evening"
+    )
+  )
+```
+
+Finally, I added a column that checks whether a ride occurred on a weekday or on the weekend.
+
+```{r time of week column}
+all_trips <- all_trips %>% 
+  mutate(
+    time_of_week = ifelse(day_of_week %in% c("Saturday", "Sunday"), "weekend", "weekday")
+  ) 
+```
+
+This completed my data cleaning and transformation process. Next, I analyzed the data to determine how annual members and casual riders use Cyclistic bikes differently. First, here's a glimpse of the final cleaned and transformed data frame `all_trips`:
+
+```{r glimpse final all_trips}
+glimpse(all_trips)
+```
+
+## Analysis of the data
+
+First, I decided to compare annual members and casual riders with respect to total number of rides, average and median ride lengths, most popular day of the week for rides, average and median ages of riders, most common age of riders, and most popular month, season, time of day, and time of week of rides:
+
+```{r usertype analysis}
+library(DescTools) # I needed to load the DescTools package to use the Mode() function.
+
+all_trips %>% 
+  group_by(usertype) %>% 
+  summarize(
+    number_of_rides = n(),
+    average_ride_length = mean(trip_duration),
+    median_ride_length = median(trip_duration),
+    most_popular_day = Mode(day_of_week),
+    average_age = mean(age),
+    median_age = median(age),
+    mode_age = Mode(age),
+    most_popular_month = Mode(month),
+    most_popular_season = Mode(season),
+    most_popular_time_of_day = Mode(time_of_day),
+    most_popular_time_of_week = Mode(time_of_week),
+  ) %>% 
+  glimpse()
+```
+
+The average and median ride lengths are much longer for casual riders vs. annual members: for casual riders, the average and median ride lengths are respectively 2869 and 1386 seconds, while for annual members they are respectively 859 and 588 seconds. Also, the most popular day of the week for casual riders is Saturday, while for annual members it is Tuesday. Casual riders are also younger (on average) than annual members: the average and median ages for casual riders are respectively 30.9 and 28, while those for annual members are respectively 35.4 and 32 (also, the most common age for casual riders is 25, while for annual members it is 27). For both kinds of riders, the most popular riding season is the summer (specifically, the month of August), the most popular time of day for a ride is the afternoon, and the most popular time of the week for a ride is on a weekday (as opposed to the weekend). Annual members also took far more total rides: 2,913,956 for annual members vs. only 344,154 for casual riders.
+
+I noticed that the days of the week are out of order, so I fixed that.
+
+```{r}
+all_trips$day_of_week <- ordered(all_trips$day_of_week, levels=c("Sunday", "Monday",
+                                                                       "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+```
+
+Next, I compared annual members and casual riders by day of the week, with respect to the total number of rides, average ride length, and most popular month, season, and time of day for a ride:
+
+```{r usertype by day of week analysis, message=FALSE, warning=FALSE}
+all_trips %>% 
+  group_by(usertype, day_of_week) %>% 
+  summarize(
+    number_of_rides = n(),
+    average_ride_length = mean(trip_duration),
+    most_popular_month = Mode(month),
+    most_popular_season = Mode(season),
+    most_popular_time_of_day = Mode(time_of_day),
+  ) %>%
+  arrange(usertype, day_of_week) %>% 
+  glimpse()
+```
+
+Casual riders (on average) take their longest rides on Fridays, while annual members do so on Saturdays. For both kinds of riders and all days of the week, the most popular season for a ride was summer, and the most popular time of day for a ride was the afternoon. I also reconfirmed that the most popular day for casual riders is Friday, while for annual members it is Tuesday.
+
+Next, I wanted to calculate the gender proportions of casual riders vs. annual members.
+
+```{r gender proportions}
+all_trips %>% 
+  group_by(usertype) %>% 
+  summarize(
+    percent_male_trips = sum(gender == 'Male')/n(),
+    percent_female_trips = sum(gender == 'Female')/n(),
+  ) %>% 
+  print()
+```
+
+Of the casual rider trips, 61.8% were male and 38.2% were female, while of the annual member trips, 75.1% were male and 24.9% were female. So annual members seem to have a greater proportion of males than casual riders. 
+
+I then wanted to calculate what proportion of the casual vs. annual rides were round trips, i.e. rides where the rider returned the bike to the same location from which they started.
+
+```{r roundtrip proportions}
+all_trips %>% 
+  group_by(usertype) %>% 
+  summarize(
+    percent_round_trips = sum(round_trip)/n()
+  ) %>% 
+  print()
+```
+
+So 8.45% of the casual rider trips were round trips, whereas only 1.6% of the annual member trips were round trips.
+
+Here is a list summarizing the most salient differences between casual riders and annual members:
+
+- Casual members take longer rides (on average)
+- Casual members prefer riding on the weekend (Friday and Saturday), while annual members ride the most on Tuesdays (although annual members take their longest rides on Saturdays)
+- Casual members are slightly younger (on average)
+- Annual members took far more rides
+- Annual members have a greater proportion of males than casual riders (75% male vs. 61% male)
+- Casual riders are slightly more likely to return their bike back to the starting location
+
+## Visualizations
+
+I now visualized some of these salient differences between casual riders and annual members.
+
+First, I visualized the difference in average ride length (in minutes) by day of the week, in a clustered column chart.
+
+```{r ride length viz, message=FALSE, warning=FALSE}
+all_trips %>% 
+  group_by(usertype, day_of_week) %>% 
+  summarize(
+    average_ride_length = mean(trip_duration),
+    avg_ride_length_mins = average_ride_length/60
+  ) %>%
+  arrange(usertype, day_of_week) %>% 
+  ggplot() + 
+  geom_col(mapping = aes(x = day_of_week, y = avg_ride_length_mins, fill = usertype), position = "dodge") +
+  labs(
+    title = "Average ride length by user type and day of the week",
+    subtitle = "Casual riders have much longer average rides (especially on Friday)",
+    x = " ",
+    y = "Average ride length (mins)",
+    fill = " "
+  )
+```
+
+Then I visualized the differences in numbers of rides by day of the week, again in a clustered column chart.
+
+```{r number of rides viz, message=FALSE, warning=FALSE}
+all_trips %>% 
+  group_by(usertype, day_of_week) %>% 
+  summarize(
+    number_of_rides = n(),
+  ) %>%
+  ggplot() + 
+  geom_col(mapping = aes(x = day_of_week, y = number_of_rides/1000, fill = usertype), position = "dodge") +
+  labs(
+    title = "Nunber of rides per day of the week by user type",
+    subtitle = "Annual members prefer weekday rides, while casual riders prefer weekend rides",
+    x = " ",
+    y = "Number of rides (thousands)",
+    fill = " "
+  )
+```
+
+Lastly, I visualized the gender proportions by user type, in a 100% stacked column chart.
+
+```{r gender proportions viz}
+ggplot(all_trips) + 
+  geom_bar(mapping = aes(x = usertype, fill = gender), position = "fill") +
+  labs(
+    title = "Gender proportions by user type",
+    subtitle = "Annual members have a greater proportion of males",
+    x = " ",
+    y = " ",
+    fill = " "
+  )
+```
+
+## Recommendations
+
+Based on my analysis of the Cyclistic ride data for 2019, here are my top three recommendations (in no particular order) for how the Cyclistic marketing team can best attempt to convert more casual riders into annual members:
+
+- Casual riders trend younger than annual members and have a more balanced gender breakdown, so marketing efforts to convert casual riders into annual members should be targeted towards a younger and more gender-balanced audience. 
+
+- Casual riders prefer to ride on the weekend, so a marketing strategy to convince casual riders to purchase an annual membership might involve offering a discount on the annual membership fee if a majority of rides are taken on the weekend.
+
+- Casual riders take much longer rides on average, so a marketing strategy to convince casual riders to become annual members might involve offering a discount on the annual membership fee if a majority of the rides taken are longer than a certain time threshold. 
+
+
