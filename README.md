@@ -1,4 +1,4 @@
-# DataAnalysisPortfolioProjects
+# Data Analysis Portfolio Projects
 This repository hosts all of my data analysis portfolio projects. I document a summary of these projects below.
 
 ## Table of Contents
@@ -7,12 +7,20 @@ This repository hosts all of my data analysis portfolio projects. I document a s
 - [Tableau](#tableau)
 - [R](#R)
 
+# Microsoft Excel
+
+| Project Link | Project Description | 
+|---|---|
+| [Food Sales Dashboard](SalesDataDashboard.xlsx) | I used pivot tables and pivot charts to create a dashboard about sales data for a fictional food company.
+| [Bikes Sales Dashboard](BikeSalesDashboardProject.xlsx) | I did some basic cleaning and transformation of bike sales data, and then created a dashboard about these data using pivot tables, pivot charts, and slicers for the pivot charts. |  
+
+***
+
 # SQL
 
-| Project Link | Area of Analysis | Project Description | 
-|---|---|---|
-| [COVID-19 Data Analysis](COVIDDataAnalysis.sql). It showcases my ability to tackle various SQL challenges and demonstrates my proficiency in SQL query writing and problem-solving skills. | 
-| [Health Analytics Case Study](https://github.com/katiehuangx/Serious-SQL-Apprenticeship/blob/main/Health%20Analytics%20Mini%20Case%20Study.md) | Health analysis | I answer business questions related to patients data, such as average and median measurements per user, types of measurements for active users, and median blood pressure values for users. |  
-| [Covid-19 and the Impact on Malaysia Stock Market](https://github.com/katiehuangx/Covid-19-and-Impact-on-Malaysia-stock-market) | Data cleaning, data analysis | A project close to 🏡 home. Inspired by Alex Freberg's [Data Exploration Project](https://www.youtube.com/watch?v=qfyynHBFOsM&list=PLUaB-1hjhk8H48Pj32z4GZgGWyylqv85f&index=1), I analysed global and local Covid-19 cases & the impact on Malaysia stock market from Jan 2020 to Jul 2021 using SQL and Tableau. |  
+| Project Link | Project Description | 
+|---|---|
+| [COVID-19 Data Analysis](COVIDDataAnalysis.sql) | Using MySQL, I analyzed global data about COVID-19 cases, deaths, and vaccinations, using SQL tools such as joins, aggregate functions, and window functions.
+| [Cleaning and Analysis of Nashville Housing Data](NashvilleHousingDataCleaningAnalysis.sql) | Using MySQL, I cleaned and transformed Nashville housing data and then performed some initial exploratory data analysis on it. |  
 
 ***
