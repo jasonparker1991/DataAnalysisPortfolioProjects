@@ -1,10 +1,9 @@
 # Data Analysis Portfolio Projects
-This repository hosts all of my data analysis portfolio projects. I document a summary of these projects below.
+This repository hosts all of my data analysis portfolio projects, which I summarize below.
 
 ## Table of Contents
 - [Microsoft Excel](#excel)
 - [SQL](#sql)
-- [Tableau](#tableau)
 - [R](#R)
 
 # Microsoft Excel
@@ -22,5 +21,13 @@ This repository hosts all of my data analysis portfolio projects. I document a s
 |---|---|
 | [COVID-19 Data Analysis](COVIDDataAnalysis.sql) | Using MySQL, I analyzed global data about COVID-19 cases, deaths, and vaccinations, using SQL tools such as joins, aggregate functions, and window functions.
 | [Cleaning and Analysis of Nashville Housing Data](NashvilleHousingDataCleaningAnalysis.sql) | Using MySQL, I cleaned and transformed Nashville housing data and then performed some initial exploratory data analysis on it. |  
+
+***
+
+# R
+
+| Project Link | Project Description | 
+|---|---|
+| [Cyclistic Bike-Share Data Analysis](Cyclistic_Bike-Share_Analysis.Rmd) | I used R to clean, transform, analyze, and visualize data about a fictional bike-share company.
 
 ***
