@@ -2,9 +2,9 @@
 This repository hosts all of my data analysis portfolio projects, which I summarize below.
 
 ## Table of Contents
-- [Microsoft Excel](#excel)
+- [Microsoft Excel](#microsoft-excel)
 - [SQL](#sql)
-- [R](#R)
+- [R](#r)
 
 # Microsoft Excel
 
