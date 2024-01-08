@@ -28,6 +28,6 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 
 | Project Link | Project Description | 
 |---|---|
-| [Cyclistic Bike-Share Data Analysis](Cyclistic_Bike-Share_Analysis.Rmd) | I used R to clean, transform, analyze, and visualize data about a fictional bike-share company.
+| [Cyclistic Bike-Share Data Analysis](https://rpubs.com/jasonparker300/Cyclistic) | I used R to clean, transform, analyze, and visualize data about a fictional bike-share company.
 
 ***
