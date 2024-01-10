@@ -4,6 +4,7 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 ## Table of Contents
 - [Microsoft Excel](#microsoft-excel)
 - [SQL](#sql)
+- [Tableau](#tableau)
 - [R](#r)
 
 # Microsoft Excel
@@ -21,6 +22,14 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 |---|---|
 | [COVID-19 Data Analysis](COVIDDataAnalysis.sql) | Using MySQL, I analyzed global data about COVID-19 cases, deaths, and vaccinations, using SQL tools such as joins, aggregate functions, and window functions.
 | [Cleaning and Analysis of Nashville Housing Data](NashvilleHousingDataCleaningAnalysis.sql) | Using MySQL, I cleaned and transformed Nashville housing data and then performed some initial exploratory data analysis on it. |  
+
+***
+
+# Tableau
+
+| Project Link | Project Description | 
+|---|---|
+| [AirBnB Dashboard](https://public.tableau.com/app/profile/jason.parker8456/viz/AirBnBProject_17048428550070/Dashboard1#1) | I used Tableau to join together several data tables about 2016 Seattle AirBnB data and create a dashboard summarizing certain aspects of this data.
 
 ***
 
