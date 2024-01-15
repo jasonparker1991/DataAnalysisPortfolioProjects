@@ -5,6 +5,7 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 - [Microsoft Excel](#microsoft-excel)
 - [SQL](#sql)
 - [Tableau](#tableau)
+- [Python](#python)
 - [R](#r)
 
 # Microsoft Excel
@@ -30,6 +31,14 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 | Project Link | Project Description | 
 |---|---|
 | [AirBnB Dashboard](https://public.tableau.com/app/profile/jason.parker8456/viz/AirBnBProject_17048428550070/Dashboard1#1) | I used Tableau to join together several data tables about 2016 Seattle AirBnB data and create a dashboard summarizing certain aspects of this data.
+
+***
+
+# Python
+
+| Project Link | Project Description | 
+|---|---|
+| [Movies Data Analysis](MoviesProject.ipynb) | I used Python (pandas, seaborn, matplotlib) to clean, analyze, and visualize data about movies. In particular, I created a correlation matrix for several numeric variables and used regression plots and heatmaps to visualize it.
 
 ***
 
