@@ -31,6 +31,7 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 | Project Link | Project Description | 
 |---|---|
 | [AirBnB Dashboard](https://public.tableau.com/app/profile/jason.parker8456/viz/AirBnBProject_17048428550070/Dashboard1#1) | I used Tableau to join together several data tables about 2016 Seattle AirBnB data and create a dashboard summarizing certain aspects of this data.
+| [Citibike Dashboard](https://public.tableau.com/shared/BGF3GD4TC?:display_count=n&:origin=viz_share_link) | I used Tableau to create a dashboard summarizing data about February 2018 Citibike bike trips.
 
 ***
 
