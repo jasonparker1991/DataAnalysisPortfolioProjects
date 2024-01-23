@@ -22,7 +22,8 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 | Project Link | Project Description | 
 |---|---|
 | [COVID-19 Data Analysis](COVIDDataAnalysis.sql) | Using MySQL, I analyzed global data about COVID-19 cases, deaths, and vaccinations, using SQL tools such as joins, aggregate functions, and window functions.
-| [Cleaning and Analysis of Nashville Housing Data](NashvilleHousingDataCleaningAnalysis.sql) | Using MySQL, I cleaned and transformed Nashville housing data and then performed some initial exploratory data analysis on it. |  
+| [Cleaning and Analysis of Nashville Housing Data](NashvilleHousingDataCleaningAnalysis.sql) | Using MySQL, I cleaned and transformed Nashville housing data and then performed some initial exploratory data analysis on it. | 
+| [Profiling and Analysis of Yelp Business Review Data](YelpDataProfilingAnalysis.pdf) | For the final assignment of the *SQL for Data Science* course on Coursera, I performed some profiling and analysis of Yelp business review data. | 
 
 ***
 
