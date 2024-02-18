@@ -29,6 +29,8 @@ This repository hosts all of my data analysis portfolio projects, which I summar
 
 # Tableau
 
+My [Tableau Public profile](https://public.tableau.com/app/profile/jason.parker8456/vizzes) contains the Tableau projects below, as well as several other one-off visualizations, dashboards, and stories that I have created (often as part of various Tableau courses). 
+
 | Project Link | Project Description | 
 |---|---|
 | [AirBnB Dashboard](https://public.tableau.com/app/profile/jason.parker8456/viz/AirBnBProject_17048428550070/Dashboard1#1) | I used Tableau to join together several data tables about 2016 Seattle AirBnB data and create a dashboard summarizing certain aspects of this data.
